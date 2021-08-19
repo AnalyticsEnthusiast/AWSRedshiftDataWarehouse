@@ -7,9 +7,8 @@ config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
 
-# Create user (if not exist) that can read from S3 and load Redshift
+# Spin down Redshift cluster if exists
 
-# Create a redshift Security Group if it does not exist
+# Drop security group if exists
 
-# Create new redshift cluster (if not exist)
-
+# Drop s3 bucket read user 

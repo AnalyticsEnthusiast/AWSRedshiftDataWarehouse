@@ -77,18 +77,48 @@ staging_songs_copy = ("""
 # FINAL TABLES
 
 songplay_table_insert = ("""
+    INSERT INTO fact_songPlay (
+    
+    
+    
+    )
+    VALUES ();
 """)
 
-user_table_insert = ("""
+user_table_insert = ("""    
+    INSERT INTO dim_user (
+    
+    
+    
+    )
+    VALUES ();
 """)
 
 song_table_insert = ("""
+    INSERT INTO dim_song (
+    
+    
+    
+    )
+    VALUES ();
 """)
 
 artist_table_insert = ("""
+    INSERT INTO dim_artist (
+    
+    
+    
+    )
+    VALUES ();
 """)
 
 time_table_insert = ("""
+    INSERT INTO dim_time (
+    
+    
+    
+    )
+    VALUES ();
 """)
 
 # QUERY LISTS
