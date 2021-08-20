@@ -16,18 +16,43 @@ artist_table_drop = "DROP TABLE IF EXISTS dim_artist;"
 time_table_drop = "DROP TABLE IF EXISTS dim_time;"
 
 # CREATE TABLES
-
+# ['artist', 'auth', 'firstName', 'gender', 'itemInSession', 'lastName', 'length', 'level', 'location', 'method', 'page', 'registration', 'sessionId', 'song', 'status', 'ts', 'userAgent', 'userId']
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events (
-    
-    
+    artist varchar(100),
+    auth varchar(50),
+    firstName varchar(100),
+    gender char(1),
+    itemInSession int,
+    lastName varchar(100), 
+    length decimal(7,5),
+    level varchar(5), 
+    location varchar(255),
+    method varchar(5),
+    page varchar(25), 
+    registration varchar(100),
+    sessionId int,
+    song varchar(200),
+    status varchar(5),
+    ts timestamp,
+    userAgent varchar(255),
+    userId int
     );
 """)
 
+#['song_id', 'num_songs', 'title', 'artist_name', 'artist_latitude', 'year', 'duration', 'artist_id', 'artist_longitude', 'artist_location']
 staging_songs_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_songs (
-    
-    
+    song_id varchar(100),
+    num_songs int,
+    title varchar(200),
+    artist_name varchar(100),
+    artist_latitude decimal(8,6),
+    year int,
+    duration decimal(7,4),
+    artist_id varchar(200),
+    artist_longitude decimal(9,6),
+    artist_location varchar(255)
     );
 """)
 

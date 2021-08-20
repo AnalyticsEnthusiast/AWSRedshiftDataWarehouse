@@ -34,6 +34,7 @@ def create_dwhuser():
                          region_name=DWH_REGION)
 
     try:
+        # Check to see if the user exists, if not then create it
         roleArn = iam.get_role(RoleName=DWH_IAM_ROLE_NAME)['Role']['Arn']
     except Exception as e:
 
@@ -55,6 +56,7 @@ def create_dwhuser():
                                PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
                               )['ResponseMetadata']['HTTPStatusCode']
     
+
 def getroleArn():
     iam = boto3.client('iam',aws_access_key_id=KEY,
                          aws_secret_access_key=SECRET,
