@@ -19,6 +19,8 @@ def create_tables(cur, conn):
 def main():
     config = configparser.ConfigParser()
     config.read('song_dwh.cfg')
+    KEY = config.get("AWS","KEY")
+    SECRET = config.get("AWS","SECRET")
     DWH_CLUSTER_IDENTIFIER = config.get("DWH","DWH_CLUSTER_IDENTIFIER")
     DWH_DB = config.get("DWH","DWH_DB")
     DWH_DB_USER = config.get("DWH","DWH_DB_USER")
