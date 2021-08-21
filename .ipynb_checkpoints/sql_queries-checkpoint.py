@@ -4,6 +4,10 @@ import configparser
 # CONFIG
 config = configparser.ConfigParser()
 config.read('song_dwh.cfg')
+ARN = config.get("ARN", "ARN")
+LOG_DATA = config.get("S3", "LOG_DATA")
+SONG_DATA = config.get("S3", "SONG_DATA")
+DWH_REGION = config.get("DWH", "DWH_REGION")
 
 # DROP TABLES
 
@@ -113,12 +117,19 @@ time_table_create = ("""
 """)
 
 # STAGING TABLES
-
-staging_events_copy = ("""
-""").format()
+staging_events_copy = (""" 
+    COPY staging_events 
+    FROM '{}'
+    IAM_ROLE '{}'
+    REGION '{}'
+""").format(LOG_DATA, ARN, DWH_REGION)
 
 staging_songs_copy = ("""
-""").format()
+    COPY staging_songs
+    FROM '{}'
+    IAM_ROLE '{}'
+    REGION '{}'
+""").format(SONG_DATA, ARN, DWH_REGION)
 
 # FINAL TABLES
 

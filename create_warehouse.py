@@ -5,26 +5,41 @@ import configparser
 from botocore.exceptions import ClientError
 import pandas as pd
 import time
+import json
 
+#Get credentials
 #Get credentials
 config = configparser.ConfigParser()
 config.read('song_dwh.cfg')
 
-KEY = config.get('AWS', 'KEY')
-SECRET = config.get('AWS', 'SECRET')
+KEY = config.get('AWS', 'key')
+SECRET = config.get('AWS', 'secret')
+ARN = config.get("ARN", "arn")
 
-DWH_CLUSTER_TYPE = config.get("DWH","DWH_CLUSTER_TYPE")
-DWH_NUM_NODES = config.get("DWH","DWH_NUM_NODES")
-DWH_NODE_TYPE = config.get("DWH","DWH_NODE_TYPE")
+DWH_REGION = config.get("DWH", "dwh_region")
+DWH_CLUSTER_TYPE = config.get("DWH", "dwh_cluster_type")
+DWH_NUM_NODES = config.get("DWH","dwh_num_nodes")
+DWH_NODE_TYPE = config.get("DWH","dwh_node_type")
+DWH_IAM_ROLE_NAME = config.get("DWH", "dwh_iam_role_name")
+DWH_CLUSTER_IDENTIFIER = config.get("DWH","dwh_cluster_identifier")
+DWH_DB = config.get("DWH","dwh_db")
+DWH_DB_USER = config.get("DWH","dwh_db_user")
+DWH_DB_PASSWORD = config.get("DWH","dwh_db_password")
+DWH_PORT = config.get("DWH","dwh_port")
 
-DWH_CLUSTER_IDENTIFIER = config.get("DWH","DWH_CLUSTER_IDENTIFIER")
-DWH_DB = config.get("DWH","DWH_DB")
-DWH_DB_USER = config.get("DWH","DWH_DB_USER")
-DWH_DB_PASSWORD = config.get("DWH","DWH_DB_PASSWORD")
-DWH_PORT = config.get("DWH","DWH_PORT")
+LOG_DATA = config.get('S3','log_data')
+SONG_DATA = config.get('S3', 'song_data')
 
-DWH_IAM_ROLE_NAME = config.get("DWH", "DWH_IAM_ROLE_NAME")
-DWH_REGION = config.get("DWH", "DWH_REGION")
+
+def update_arn(ARN):
+        
+    config = configparser.ConfigParser()
+    config.read('song_dwh.cfg')
+    
+    config.set("ARN","ARN", ARN)
+    
+    with open("song_dwh.cfg", "w") as con:
+        config.write(con)
 
 
 def create_dwhuser():
@@ -55,6 +70,9 @@ def create_dwhuser():
         iam.attach_role_policy(RoleName=DWH_IAM_ROLE_NAME,
                                PolicyArn="arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
                               )['ResponseMetadata']['HTTPStatusCode']
+        
+        roleArn = iam.get_role(RoleName=DWH_IAM_ROLE_NAME)['Role']['Arn']
+        update_arn(roleArn)
     
 
 def getroleArn():
@@ -81,6 +99,7 @@ def create_redshift_cluster():
                        )
     
     roleArn = getroleArn()
+    print(roleArn)
     
     try:
         response = redshift.create_cluster(        
@@ -114,7 +133,9 @@ def create_tcp_route():
                        aws_secret_access_key=SECRET
                        )
     
-    while redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]["ClusterStatus"] != "Available":
+    myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
+    
+    while redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]["ClusterStatus"].lower() != "available":
         print("sleeping 60 sec......")
         time.sleep(60)
     
