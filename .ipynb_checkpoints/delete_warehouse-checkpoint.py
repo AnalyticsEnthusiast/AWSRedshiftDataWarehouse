@@ -29,12 +29,21 @@ DWH_PORT = config.get("DWH","dwh_port")
 LOG_DATA = config.get('S3','log_data')
 SONG_DATA = config.get('S3', 'song_data')
 
+def update_endpoint():
+    
+    config = configparser.ConfigParser()
+    config.read('song_dwh.cfg')
+    
+    config.set("DWH","dwh_endpoint", "")
+    
+    with open("song_dwh.cfg", "w") as con:
+        config.write(con)
 
 def update_arn():
     config = configparser.ConfigParser()
     config.read('song_dwh.cfg')
     
-    config.set("ARN","ARN", "")
+    config.set("ARN","arn", "")
     with open("song_dwh.cfg", "w") as con:
         config.write(con)
 
@@ -65,18 +74,19 @@ def remove_user():
 def main():
     drop_cluster()
     remove_user()
+    update_endpoint()
     
     redshift = boto3.client('redshift',
                        region_name=DWH_REGION,
                        aws_access_key_id=KEY,
                        aws_secret_access_key=SECRET
                        )
-    
-    while redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]["ClusterStatus"] == "deleting":
-        print("deleting cluster.....")
-        time.sleep(60)
-    
-    print("cluster deleted")
+    try:
+        while redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]["ClusterStatus"] == "deleting":
+            print("deleting cluster.....")
+            time.sleep(60)
+    except Exception as e:
+        print("cluster deleted")
     
     
 if __name__ == "__main__":

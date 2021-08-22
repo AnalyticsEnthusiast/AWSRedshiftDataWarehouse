@@ -29,12 +29,21 @@ DWH_PORT = config.get("DWH","dwh_port")
 LOG_DATA = config.get('S3','log_data')
 SONG_DATA = config.get('S3', 'song_data')
 
+def update_endpoint():
+    
+    config = configparser.ConfigParser()
+    config.read('song_dwh.cfg')
+    
+    config.set("DWH","dwh_endpoint", "")
+    
+    with open("song_dwh.cfg", "w") as con:
+        config.write(con)
 
 def update_arn():
     config = configparser.ConfigParser()
     config.read('song_dwh.cfg')
     
-    config.set("ARN","ARN", "")
+    config.set("ARN","arn", "")
     with open("song_dwh.cfg", "w") as con:
         config.write(con)
 
@@ -65,6 +74,7 @@ def remove_user():
 def main():
     drop_cluster()
     remove_user()
+    update_endpoint()
     
     redshift = boto3.client('redshift',
                        region_name=DWH_REGION,

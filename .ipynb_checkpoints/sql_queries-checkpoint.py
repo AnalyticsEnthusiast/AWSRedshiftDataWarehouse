@@ -4,32 +4,33 @@ import configparser
 # CONFIG
 config = configparser.ConfigParser()
 config.read('song_dwh.cfg')
-ARN = config.get("ARN", "ARN")
-LOG_DATA = config.get("S3", "LOG_DATA")
-SONG_DATA = config.get("S3", "SONG_DATA")
-DWH_REGION = config.get("DWH", "DWH_REGION")
+ARN = config.get("ARN", "arn")
+LOG_DATA = config.get("S3", "log_data")
+SONG_DATA = config.get("S3", "song_data")
+LOG_JSONPATH = config.get("S3", "log_jsonpath")
+DWH_REGION = config.get("DWH", "dwh_region")
+
 
 # DROP TABLES
-
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
-songplay_table_drop = "DROP TABLE IF EXISTS fact_songPlay;"
-user_table_drop = "DROP TABLE IF EXISTS dim_user;"
-song_table_drop = "DROP TABLE IF EXISTS dim_song;"
-artist_table_drop = "DROP TABLE IF EXISTS dim_artist;"
-time_table_drop = "DROP TABLE IF EXISTS dim_time;"
+songplay_table_drop = "DROP TABLE IF EXISTS fact_songPlay CASCADE;"
+user_table_drop = "DROP TABLE IF EXISTS dim_user CASCADE;"
+song_table_drop = "DROP TABLE IF EXISTS dim_song CASCADE;"
+artist_table_drop = "DROP TABLE IF EXISTS dim_artist CASCADE;"
+time_table_drop = "DROP TABLE IF EXISTS dim_time CASCADE;"
 
 # CREATE TABLES
 # ['artist', 'auth', 'firstName', 'gender', 'itemInSession', 'lastName', 'length', 'level', 'location', 'method', 'page', 'registration', 'sessionId', 'song', 'status', 'ts', 'userAgent', 'userId']
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events (
-        artist varchar(100),
+        artist varchar(200),
         auth varchar(50),
         firstName varchar(100),
         gender varchar(1),
         itemInSession int,
         lastName varchar(100), 
-        length decimal(7,5),
+        length decimal(10,5),
         level varchar(5), 
         location varchar(255),
         method varchar(5),
@@ -38,7 +39,7 @@ staging_events_table_create= ("""
         sessionId int,
         song varchar(200),
         status varchar(5),
-        ts timestamp,
+        ts bigint,
         userAgent varchar(255),
         userId int
     );
@@ -50,10 +51,10 @@ staging_songs_table_create = ("""
         song_id varchar(100),
         num_songs int,
         title varchar(200),
-        artist_name varchar(100),
+        artist_name varchar(200),
         artist_latitude decimal(8,6),
         year int,
-        duration decimal(7,4),
+        duration decimal(9,4),
         artist_id varchar(200),
         artist_longitude decimal(9,6),
         artist_location varchar(255)
@@ -62,7 +63,7 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS fact_songPlay (
-        songplay_id IDENTITY(0,1) NOT NULL PRIMARY KEY,
+        songplay_id int IDENTITY(0,1) PRIMARY KEY,
         start_time timestamp REFERENCES dim_time (start_time),
         user_id int REFERENCES dim_user (user_id),
         level varchar(5),
@@ -90,16 +91,16 @@ song_table_create = ("""
         title varchar(200), 
         artist_id varchar(200), 
         year int, 
-        duration decimal(7,4)
+        duration decimal(9,4)
     );
 """)
 
 artist_table_create = ("""
     CREATE TABLE IF NOT EXISTS dim_artist (
         artist_id varchar(200) NOT NULL PRIMARY KEY, 
-        name varchar(100), 
+        name varchar(200), 
         location varchar(255), 
-        lattitude decimal(8,6),
+        latitude decimal(8,6),
         longitude decimal(9,6)
     );
 """)
@@ -119,44 +120,21 @@ time_table_create = ("""
 # STAGING TABLES
 staging_events_copy = (""" 
     COPY staging_events 
-    FROM '{}'
+    FROM {}
     IAM_ROLE '{}'
+    FORMAT AS JSON {}
     REGION '{}'
-""").format(LOG_DATA, ARN, DWH_REGION)
+""").format(LOG_DATA, ARN, LOG_JSONPATH, DWH_REGION)
 
 staging_songs_copy = ("""
     COPY staging_songs
-    FROM '{}'
+    FROM {}
     IAM_ROLE '{}'
+    FORMAT AS JSON 'auto'
     REGION '{}'
 """).format(SONG_DATA, ARN, DWH_REGION)
 
 # FINAL TABLES
-
-songplay_table_insert = ("""
-    INSERT INTO fact_songPlay (
-    start_time, 
-    user_id, 
-    level, 
-    song_id, 
-    artist_id, 
-    session_id, 
-    location, 
-    user_agent
-    )
-    SELECT DISTINCT
-        ts as start_time,
-        user_id,
-        level,
-        song_id,
-        artist_id,
-        session_id,
-        location,
-        user_agent
-    FROM staging_events
-    ;
-""")
-
 user_table_insert = ("""    
     INSERT INTO dim_user (
     user_id, 
@@ -166,7 +144,7 @@ user_table_insert = ("""
     level
     )
     SELECT DISTINCT
-        user_id, 
+        userId as user_id, 
         firstName as first_name, 
         lastName as last_name, 
         gender, 
@@ -198,14 +176,14 @@ artist_table_insert = ("""
     artist_id, 
     name, 
     location, 
-    lattitude, 
+    latitude, 
     longitude
     )
     SELECT DISTINCT
         artist_id,
         artist_name as name,
         artist_location as location,
-        artist_lattitude as lattitude,
+        artist_latitude as latitude,
         artist_longitude as longitude
     FROM staging_songs
     ;
@@ -222,13 +200,37 @@ time_table_insert = ("""
     weekday
     )
     SELECT DISTINCT
+        date_add('ms',ts,'1970-01-01') as start_time,
+        EXTRACT('hour' from start_time) AS hour,
+        EXTRACT('day' from start_time) AS day,
+        EXTRACT('week' from start_time) AS  week,
+        EXTRACT('month' from  start_time) AS month,
+        EXTRACT('year' from start_time) AS year,
+        EXTRACT('DOW' from start_time) AS weekday
+    FROM staging_events
+    ;
+""")
+
+songplay_table_insert = ("""
+    INSERT INTO fact_songPlay (
+    start_time, 
+    user_id, 
+    level, 
+    song_id, 
+    artist_id, 
+    session_id, 
+    location, 
+    user_agent
+    )
+    SELECT DISTINCT
         ts as start_time,
-        EXTRACT('hour' from timestamp ts) AS hour,
-        EXTRACT('day' from timestamp ts) AS day,
-        EXTRACT('week' FROM timestamp ts) AS  week,
-        EXTRACT('month' from timestamp ts) AS month,
-        EXTRACT('year' from timestamp ts) AS year,
-        EXTRACT(ISODOW from timestamp ts) AS weekday
+        user_id,
+        level,
+        song_id,
+        artist_id,
+        session_id,
+        location,
+        user_agent
     FROM staging_events
     ;
 """)
