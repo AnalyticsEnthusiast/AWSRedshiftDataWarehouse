@@ -157,9 +157,11 @@ def create_tcp_route():
                        aws_access_key_id=KEY,
                        aws_secret_access_key=SECRET
                     )
-    
+
+    myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
     endpoint = myClusterProps['Endpoint']['Address']
     print(endpoint)
+     
     update_endpoint(endpoint, DWH_PORT, DWH_DB)
     
     try:

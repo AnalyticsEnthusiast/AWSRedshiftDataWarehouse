@@ -54,7 +54,7 @@ staging_songs_table_create = ("""
         artist_name varchar(200),
         artist_latitude decimal(8,6),
         year int,
-        duration decimal(9,4),
+        duration decimal(10,5),
         artist_id varchar(200),
         artist_longitude decimal(9,6),
         artist_location varchar(255)
@@ -254,16 +254,18 @@ songplay_table_insert = ("""
         se.location,
         se.useragent as user_agent
     FROM staging_events se
-    LEFT JOIN (
+    JOIN (
         SELECT DISTINCT
             song_id,
             title,
             artist_id,
-            artist_name
+            artist_name,
+            duration
         FROM staging_songs
     ) ss
     ON se.song = ss.title
     AND se.artist = ss.artist_name
+    AND se.length = ss.duration
     WHERE userId <> ' '
     ;
 """)
