@@ -19,21 +19,16 @@ def create_tables(cur, conn):
 def main():
     config = configparser.ConfigParser()
     config.read('song_dwh.cfg')
-    KEY = config.get("AWS","KEY")
-    SECRET = config.get("AWS","SECRET")
-    DWH_CLUSTER_IDENTIFIER = config.get("DWH","DWH_CLUSTER_IDENTIFIER")
-    DWH_DB = config.get("DWH","DWH_DB")
-    DWH_DB_USER = config.get("DWH","DWH_DB_USER")
-    DWH_DB_PASSWORD = config.get("DWH","DWH_DB_PASSWORD")
-    DWH_PORT = config.get("DWH","DWH_PORT")
-    
-    redshift = boto3.client('redshift',
-                       region_name=DWH_REGION,
-                       aws_access_key_id=KEY,
-                       aws_secret_access_key=SECRET
-                       )
-    myClusterProps = redshift.describe_clusters(ClusterIdentifier=DWH_CLUSTER_IDENTIFIER)['Clusters'][0]
-    DWH_ENDPOINT = myClusterProps['Endpoint']['Address']
+    KEY = config.get("AWS","key")
+    SECRET = config.get("AWS","secret")
+    DWH_CLUSTER_IDENTIFIER = config.get("DWH","dwh_cluster_identifier")
+    DWH_DB = config.get("DWH","dwh_db")
+    DWH_DB_USER = config.get("DWH","dwh_db_user")
+    DWH_DB_PASSWORD = config.get("DWH","dwh_db_password")
+    DWH_PORT = config.get("DWH","dwh_port")
+    DWH_REGION = config.get("DWH","dwh_region")
+    DWH_ENDPOINT = config.get("DWH", "dwh_endpoint")
+    DWH_ENDPOINT = DWH_ENDPOINT.split(":")[0]
 
     conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(DWH_ENDPOINT ,DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT))
     cur = conn.cursor()

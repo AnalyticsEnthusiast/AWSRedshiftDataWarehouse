@@ -41,7 +41,7 @@ staging_events_table_create= ("""
         status varchar(5),
         ts bigint,
         userAgent varchar(255),
-        userId int
+        userId varchar(255)
     );
 """)
 
@@ -144,12 +144,24 @@ user_table_insert = ("""
     level
     )
     SELECT DISTINCT
-        userId as user_id, 
-        firstName as first_name, 
-        lastName as last_name, 
-        gender, 
-        level
-    FROM staging_events
+        CAST(sq.userId as int) as user_id, 
+        sq.firstName as first_name, 
+        sq.lastName as last_name, 
+        sq.gender, 
+        sq.level
+    FROM 
+    (
+        SELECT 
+        userId,
+        firstName,
+        lastName,
+        gender,
+        level,
+        row_number() OVER(PARTITION BY userId ORDER BY ts DESC) AS recent_user_id
+        FROM staging_events
+    ) sq
+    WHERE userId <> ' '
+    AND sq.recent_user_id = 1
     ;
 """)
 
@@ -180,12 +192,22 @@ artist_table_insert = ("""
     longitude
     )
     SELECT DISTINCT
+        ss.artist_id,
+        ss.artist_name as name,
+        ss.artist_location as location,
+        ss.artist_latitude as latitude,
+        ss.artist_longitude as longitude
+    FROM (
+        SELECT
         artist_id,
-        artist_name as name,
-        artist_location as location,
-        artist_latitude as latitude,
-        artist_longitude as longitude
-    FROM staging_songs
+        artist_name,
+        artist_location,
+        artist_latitude,
+        artist_longitude,
+        ROW_NUMBER() OVER(PARTITION BY artist_id ORDER BY duration DESC) as track_order
+        FROM staging_songs
+    ) ss
+    WHERE ss.track_order = 1
     ;
 """)
 
@@ -222,22 +244,33 @@ songplay_table_insert = ("""
     location, 
     user_agent
     )
-    SELECT DISTINCT
-        ts as start_time,
-        user_id,
-        level,
-        song_id,
-        artist_id,
-        session_id,
-        location,
-        user_agent
-    FROM staging_events
+    SELECT
+        date_add('ms',se.ts,'1970-01-01') as start_time,
+        CAST(se.userId as int) as user_id,
+        se.level,
+        ss.song_id as song_id,
+        ss.artist_id as artist_id,
+        se.sessionId as session_id,
+        se.location,
+        se.useragent as user_agent
+    FROM staging_events se
+    LEFT JOIN (
+        SELECT DISTINCT
+            song_id,
+            title,
+            artist_id,
+            artist_name
+        FROM staging_songs
+    ) ss
+    ON se.song = ss.title
+    AND se.artist = ss.artist_name
+    WHERE userId <> ' '
     ;
 """)
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [user_table_insert, song_table_insert, artist_table_insert, time_table_insert, songplay_table_insert]

@@ -31,10 +31,12 @@ LOG_DATA = config.get('S3','log_data')
 SONG_DATA = config.get('S3', 'song_data')
 
 
-def update_endpoint(endpoint):
+def update_endpoint(endpoint, port, db_name):
     
     config = configparser.ConfigParser()
     config.read('song_dwh.cfg')
+    
+    endpoint = endpoint + ":" + port + "/" + db_name
     
     config.set("DWH","dwh_endpoint", endpoint)
     
@@ -156,8 +158,9 @@ def create_tcp_route():
                        aws_secret_access_key=SECRET
                     )
     
-    endpoint = myClusterProps['Endpoint']
-    update_endpoint(endpoint)
+    endpoint = myClusterProps['Endpoint']['Address']
+    print(endpoint)
+    update_endpoint(endpoint, DWH_PORT, DWH_DB)
     
     try:
         vpc = ec2.Vpc(id=myClusterProps['VpcId'])
