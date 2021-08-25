@@ -10,7 +10,8 @@ import json
 #Get credentials
 #Get credentials
 config = configparser.ConfigParser()
-config.read('song_dwh.cfg')
+#config.read('song_dwh.cfg')
+config.read('dwh.cfg')
 
 KEY = config.get('AWS', 'key')
 SECRET = config.get('AWS', 'secret')
@@ -34,26 +35,32 @@ SONG_DATA = config.get('S3', 'song_data')
 def update_endpoint(endpoint, port, db_name):
     
     config = configparser.ConfigParser()
-    config.read('song_dwh.cfg')
+    #config.read('song_dwh.cfg')
+    config.read('dwh.cfg')
     
     endpoint = endpoint + ":" + port + "/" + db_name
     
     config.set("DWH","dwh_endpoint", endpoint)
     
-    with open("song_dwh.cfg", "w") as con:
+    with open("dwh.cfg", "w") as con:
         config.write(con)
-
+        
+    #with open("song_dwh.cfg", "w") as con:
+    #    config.write(con)
         
 def update_arn(ARN):
         
     config = configparser.ConfigParser()
-    config.read('song_dwh.cfg')
+    #config.read('song_dwh.cfg')
+    config.read('dwh.cfg')
     
     config.set("ARN","arn", ARN)
     
-    with open("song_dwh.cfg", "w") as con:
+    with open("dwh.cfg", "w") as con:
         config.write(con)
-
+        
+    #with open("song_dwh.cfg", "w") as con:
+    #    config.write(con)
 
 def create_dwhuser():
     # Create iam client

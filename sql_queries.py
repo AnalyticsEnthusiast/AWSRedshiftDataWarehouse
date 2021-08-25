@@ -3,7 +3,8 @@ import configparser
 
 # CONFIG
 config = configparser.ConfigParser()
-config.read('song_dwh.cfg')
+config.read('dwh.cfg')
+#config.read('song_dwh.cfg')
 ARN = config.get("ARN", "arn")
 LOG_DATA = config.get("S3", "log_data")
 SONG_DATA = config.get("S3", "song_data")

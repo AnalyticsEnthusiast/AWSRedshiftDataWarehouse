@@ -9,7 +9,8 @@ import time
 #Get credentials
 #Get credentials
 config = configparser.ConfigParser()
-config.read('song_dwh.cfg')
+#config.read('song_dwh.cfg')
+config.read('dwh.cfg')
 
 KEY = config.get('AWS', 'key')
 SECRET = config.get('AWS', 'secret')
@@ -32,21 +33,30 @@ SONG_DATA = config.get('S3', 'song_data')
 def update_endpoint():
     
     config = configparser.ConfigParser()
-    config.read('song_dwh.cfg')
+    #config.read('song_dwh.cfg')
+    config.read('dwh.cfg')
     
     config.set("DWH","dwh_endpoint", "")
     
-    with open("song_dwh.cfg", "w") as con:
+    with open("dwh.cfg", "w") as con:
         config.write(con)
-
+    
+    #with open("song_dwh.cfg", "w") as con:
+    #    config.write(con)
+    
 def update_arn():
     config = configparser.ConfigParser()
-    config.read('song_dwh.cfg')
+    #config.read('song_dwh.cfg')
+    config.read('dwh.cfg')
     
     config.set("ARN","arn", "")
-    with open("song_dwh.cfg", "w") as con:
+    
+    with open("dwh.cfg", "w") as con:
         config.write(con)
-
+    
+    #with open("song_dwh.cfg", "w") as con:
+    #    config.write(con)
+    
 # Spin down Redshift cluster if exists
 def drop_cluster():
     redshift = boto3.client('redshift',

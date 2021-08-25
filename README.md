@@ -17,7 +17,7 @@
 | create_tables.py     | python           | Script to create tables in Redshift              |
 | create_warehouse.py  | python           | Iac script to create warehouse                   |
 | delete_warehouse.py  | python           | Iac script to delete warehouse                   |
-| song_dwh.cfg         | config           | Sample configuration File                        |
+| dwh.cfg              | config           | Sample configuration File                        |
 | etl.py               | python           | ETL Call Script                                  |
 | README.md            | markdown         | README file                                      |
 | run.sh               | shell            | Shell wrapper to create and populate warehouse   |
@@ -27,7 +27,7 @@
 
 <br>
 
-<p>The song_dwh.cfg file will need to be set up before scripts can be called. Create the admin AWS user who will spin up the Redhift Cluster, add the key and secret to song_dwh.cfg. The endpoint and ARN user will be populated in song_dwh.cfg automatically when the create_database.py script is called, or you can add them manually.</p>
+<p>The dwh.cfg file will need to be set up before scripts can be called. Create the admin AWS user who will spin up the Redhift Cluster, add the key and secret to dwh.cfg. The endpoint and ARN user will be populated in dwh.cfg automatically when the create_database.py script is called, or you can add them manually.</p>
 
 <br>
 
