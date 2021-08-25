@@ -4,20 +4,47 @@ from sql_queries import copy_table_queries, insert_table_queries
 
 
 def load_staging_tables(cur, conn):
+    """
+    Description: Loops through COPY commands defined in sql_queries.py file and executes them against DWH.
+    
+    Arguments:
+        cur - Cursor Object
+        connection - Connection Object
+    Output:
+        None
+    """
     for query in copy_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def insert_tables(cur, conn):
+    """
+    Description: Loops through INSERT commands defined in sql_queries.py file and executes them against DWH.
+    
+    Arguments:
+        cur - Cursor Object
+        connection - Connection Object
+    Output:
+        None
+    """
     for query in insert_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def main():
+    """
+    Description: Main processing Loop.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
-    config.read('song_dwh.cfg')
+    #config.read('song_dwh.cfg')
+    config.read('dwh.cfg')
     KEY = config.get("AWS","key")
     SECRET = config.get("AWS","secret")
     DWH_CLUSTER_IDENTIFIER = config.get("DWH","dwh_cluster_identifier")
