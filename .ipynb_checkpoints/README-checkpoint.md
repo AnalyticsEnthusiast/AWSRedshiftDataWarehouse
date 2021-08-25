@@ -96,7 +96,9 @@ The project is broken into the following sections:
 <br>
 
 <p>There are two scripts for creating and deleting the data warehouse</p>
+
 1. create_warehouse.py
+
 2. delete_warehouse.py
 
 <br>
@@ -133,8 +135,11 @@ The project is broken into the following sections:
 <br>
 
 The ETL process consists of three steps:
+
 1. Create Destination staging and schema tables.
+
 2. Load raw json data into staging tables from buckets in S3.
+
 3. Use INSERT INTO SELECT statements to load the destination dimension and fact tables.
 
 <br>
