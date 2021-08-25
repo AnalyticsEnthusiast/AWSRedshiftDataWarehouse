@@ -3,7 +3,9 @@
 <br>
 
 **Author:** Darren Foley
+
 **Email:** darren.foley@ucdconnect.ie
+
 **Date:** 2021-08-24
 
 <br>
@@ -52,7 +54,7 @@ Followed by the ETL
 > python etl.py
 ```
 
-or alternativily you can run the shell wrapper run.sh like so
+or you can run the shell wrapper run.sh like so
 
 ```
 > ./run.sh
@@ -60,7 +62,7 @@ or alternativily you can run the shell wrapper run.sh like so
 
 <br>
 
-To destroy the Redhsift cluster after use
+To destroy the Redhsift cluster run the following
 
 ```
 > python delete_warehouse.py
@@ -113,7 +115,7 @@ The project is broken into the following sections:
 
 <br>
 
-![ Logical Data Model !](/home/workspace/images/logical.png "Logical Data Model")
+![ Logical Data Model !](images/logical.png)
 
 <br>
 
@@ -272,11 +274,11 @@ LIMIT 10
 Output-->
 
 | song_count  | title                                                      | name                           |
-|----------- :|:----------------------------------------------------------:|:------------------------------:|            
+|------------:|:----------------------------------------------------------:|:-------------------------------|            
 | 37          | You're The One                                             | Dwight Yoakam                  |    
 | 9           | I CAN'T GET STARTED                                        | Ron Carter                     |  
 | 9           | Catch You Baby (Steve Pitron & Max Sanna Radio Edit)       | Lonnie Gordon                  |
-| 8           | Nothin' On You [feat. Bruno Mars] (Album Version)          | B.o.B                          |
+| 8           | Nothin' On You feat. Bruno Mars (Album Version)            | B.o.B                          |
 | 6           | Hey Daddy (Daddy's Home)                                   | Usher                          |
 | 5           | Make Her Say                                               | Kid Cudi / Kanye West / Common |
 | 5           | Up Up & Away                                               | Kid Cudi / Kanye West / Common |
