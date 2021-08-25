@@ -103,7 +103,7 @@ The project is broken into the following sections:
 
 <br>
 
-<p>These are Iac scripts written in python using the boto3 AWS client. The create script connects to AWS using the admin user, spins up the cluster and createes a role for Redshift to read from S3. Network routing is also set up so that users can connect to Redshift.</p>
+<p>These are Iac scripts written in python using the boto3 AWS client. The create script connects to AWS using the admin user, spins up the cluster and creates a role for Redshift to read from S3. Network routing is also set up so that users can connect to Redshift.</p>
 
 <p>The delete script removes the user and warehouse so that resources are not left running.</p>
 
@@ -149,6 +149,7 @@ The ETL process consists of three steps:
 <p>2. Next the COPY commands are called. </p>
 
 log data is located at 's3://udacity-dend/log_data'
+
 song data is located at 's3://udacity-dend/song_data'
 
 <p>The COPY command will iterate through the directory hierarchy and load each file in parallel where applicable. The log data is also provided with a json path file located at 's3://udacity-dend/log_json_path.json' which helps parse out the correct fields.</p>
