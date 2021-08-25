@@ -230,6 +230,23 @@ LIMIT 10
 
 <br>
 
+Output-->
+
+| session_count  | first_name   | last_name    | user_id     |
+|---------------:|:------------:|:------------:|:------------|
+| 21             | Chloe        | Cuevas       | 49          |
+| 17             | Tegan        | Levine       | 80          | 
+| 11             | Kate         | Harrell      | 97          | 
+| 8              | Lily         | Koch         | 15          |
+| 7              | Aleena       | Kirby        | 44          |
+| 7              | Mohammad     | Rodriguez    | 88          |
+| 6              | Jacob        | Klein        | 73          |
+| 6              | Jacqueline   | Lynch        | 29          |
+| 6              | Matthew      | Jones        | 36          |
+| 6              | Jayden       | Grav         | 25          |
+
+<br>
+
 2. "Top 10 songs by number of listens"
 
 ```
@@ -239,7 +256,7 @@ SELECT
 	da.name
 FROM fact_songPlay fsp
 JOIN dim_song ds
-ON du.song_id = fsp.song_id
+ON ds.song_id = fsp.song_id
 JOIN dim_artist da
 ON da.artist_id = fsp.artist_id
 GROUP BY 
@@ -249,3 +266,20 @@ ORDER BY song_count DESC
 LIMIT 10
 ;
 ```
+
+<br>
+
+Output-->
+
+| song_count  | title                                                      | name                           |
+|----------- :|:----------------------------------------------------------:|:------------------------------:|            
+| 37          | You're The One                                             | Dwight Yoakam                  |    
+| 9           | I CAN'T GET STARTED                                        | Ron Carter                     |  
+| 9           | Catch You Baby (Steve Pitron & Max Sanna Radio Edit)       | Lonnie Gordon                  |
+| 8           | Nothin' On You [feat. Bruno Mars] (Album Version)          | B.o.B                          |
+| 6           | Hey Daddy (Daddy's Home)                                   | Usher                          |
+| 5           | Make Her Say                                               | Kid Cudi / Kanye West / Common |
+| 5           | Up Up & Away                                               | Kid Cudi / Kanye West / Common |
+| 4           | Mr. Jones                                                  | Counting Crows                 |
+| 4           | Supermassive Black Hole (Album Version)                    | Muse                           |
+| 4           | Unwell (Album Version)                                     | matchbox twenty                |
