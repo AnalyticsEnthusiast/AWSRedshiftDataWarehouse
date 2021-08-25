@@ -8,7 +8,6 @@ import time
 import json
 
 #Get credentials
-#Get credentials
 config = configparser.ConfigParser()
 #config.read('song_dwh.cfg')
 config.read('dwh.cfg')
@@ -33,7 +32,16 @@ SONG_DATA = config.get('S3', 'song_data')
 
 
 def update_endpoint(endpoint, port, db_name):
+    """
+    Description: Updates the dwh.cfg file and populates the dwh_endpoint value.
     
+    Arguments:
+        endpoint - Endpoint of Redhshift Cluster
+        port - Port number of Redhshift Cluster
+        db_name - Name of database to be created
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
     #config.read('song_dwh.cfg')
     config.read('dwh.cfg')
@@ -49,7 +57,14 @@ def update_endpoint(endpoint, port, db_name):
     #    config.write(con)
         
 def update_arn(ARN):
-        
+    """
+    Description: Updates the dwh.cfg file and populates the arn value for s3 read user.
+    
+    Arguments:
+        ARN - Amazon resource Number String
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
     #config.read('song_dwh.cfg')
     config.read('dwh.cfg')
@@ -63,7 +78,14 @@ def update_arn(ARN):
     #    config.write(con)
 
 def create_dwhuser():
-    # Create iam client
+    """
+    Description: Creates the DWH user that allows Redshift to Read from S3. 
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     iam = boto3.client('iam',aws_access_key_id=KEY,
                          aws_secret_access_key=SECRET,
                          region_name=DWH_REGION)
@@ -96,6 +118,14 @@ def create_dwhuser():
     
 
 def getroleArn():
+    """
+    Description: Retrieves role ARN String
+    
+    Arguments:
+        None
+    Output:
+        ARN string
+    """
     iam = boto3.client('iam',aws_access_key_id=KEY,
                          aws_secret_access_key=SECRET,
                          region_name=DWH_REGION)
@@ -104,6 +134,15 @@ def getroleArn():
     
     
 def prettyRedshiftProps(props):
+    """
+    Description: Function that pretty prints Redshift Cluster properties as a pandas DF.
+    
+    Arguments:
+        props - Property object
+    
+    Output:
+        Dataframe object of properties
+    """
     pd.set_option('display.max_colwidth', -1)
     keysToShow = ["ClusterIdentifier", "NodeType", "ClusterStatus", "MasterUsername", "DBName", "Endpoint", "NumberOfNodes", 'VpcId']
     x = [(k, v) for k,v in props.items() if k in keysToShow]
@@ -111,7 +150,14 @@ def prettyRedshiftProps(props):
 
     
 def create_redshift_cluster():
+    """
+    Description: Function that spins up cluster based on information in the dwh.cfg file.
     
+    Arguments:
+        None
+    Output:
+        None
+    """
     redshift = boto3.client('redshift',
                        region_name=DWH_REGION,
                        aws_access_key_id=KEY,
@@ -146,7 +192,14 @@ def create_redshift_cluster():
 
 
 def create_tcp_route():
+    """
+    Description: Creates a TCP network route to the redshift cluster to allow users to connect.
     
+    Arguments:
+        None
+    Output:
+        None
+    """
     redshift = boto3.client('redshift',
                        region_name=DWH_REGION,
                        aws_access_key_id=KEY,
@@ -188,6 +241,14 @@ def create_tcp_route():
         
     
 def main():
+    """
+    Description: Main processing function.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     create_dwhuser()
     create_redshift_cluster()
     create_tcp_route()

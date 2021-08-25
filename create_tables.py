@@ -5,18 +5,44 @@ from sql_queries import create_table_queries, drop_table_queries
 
 
 def drop_tables(cur, conn):
+    """
+    Description: Loops through drop table statements in sql_queries.py and executes them against the DWH.
+    
+    Arguments:
+        1. cur - Cursor Object
+        2. conn - Connection Object
+    Output:
+        None
+    """
     for query in drop_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def create_tables(cur, conn):
+    """
+    Description: Loops through create table statements in sql_queries.py and executes them against the DWH.
+        
+    Arguments:
+        1. cur - Cursor Object
+        2. conn - Connection Object
+    Output:
+        None
+    """
     for query in create_table_queries:
         cur.execute(query)
         conn.commit()
 
 
 def main():
+    """
+    Description: Main executing loop. Connects to DWH and executes drop_table and create_table functions
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
     #config.read('song_dwh.cfg')
     config.read('dwh.cfg')

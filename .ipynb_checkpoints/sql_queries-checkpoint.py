@@ -22,7 +22,6 @@ artist_table_drop = "DROP TABLE IF EXISTS dim_artist CASCADE;"
 time_table_drop = "DROP TABLE IF EXISTS dim_time CASCADE;"
 
 # CREATE TABLES
-# ['artist', 'auth', 'firstName', 'gender', 'itemInSession', 'lastName', 'length', 'level', 'location', 'method', 'page', 'registration', 'sessionId', 'song', 'status', 'ts', 'userAgent', 'userId']
 staging_events_table_create= ("""
     CREATE TABLE IF NOT EXISTS staging_events (
         artist varchar(200),
@@ -46,7 +45,7 @@ staging_events_table_create= ("""
     );
 """)
 
-#['song_id', 'num_songs', 'title', 'artist_name', 'artist_latitude', 'year', 'duration', 'artist_id', 'artist_longitude', 'artist_location']
+
 staging_songs_table_create = ("""
     CREATE TABLE IF NOT EXISTS staging_songs (
         song_id varchar(100),
@@ -272,7 +271,6 @@ songplay_table_insert = ("""
 """)
 
 # QUERY LISTS
-
 create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]

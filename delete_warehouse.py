@@ -31,7 +31,14 @@ LOG_DATA = config.get('S3','log_data')
 SONG_DATA = config.get('S3', 'song_data')
 
 def update_endpoint():
+    """
+    Description: Updates the dwh.cfg file and removes the dwh_endpoint value.
     
+    Arguments:
+        None
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
     #config.read('song_dwh.cfg')
     config.read('dwh.cfg')
@@ -45,6 +52,14 @@ def update_endpoint():
     #    config.write(con)
     
 def update_arn():
+    """
+    Description: Updates the dwh.cfg file and removes the ARN value.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     config = configparser.ConfigParser()
     #config.read('song_dwh.cfg')
     config.read('dwh.cfg')
@@ -57,8 +72,16 @@ def update_arn():
     #with open("song_dwh.cfg", "w") as con:
     #    config.write(con)
     
-# Spin down Redshift cluster if exists
+
 def drop_cluster():
+    """
+    Description: Drops the Redshift cluster if the endpoint exists.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     redshift = boto3.client('redshift',
                        region_name=DWH_REGION,
                        aws_access_key_id=KEY,
@@ -66,9 +89,16 @@ def drop_cluster():
                        )
     redshift.delete_cluster( ClusterIdentifier=DWH_CLUSTER_IDENTIFIER,  SkipFinalClusterSnapshot=True)
 
-# Drop s3 bucket read user 
-# Remove IAM user
+    
 def remove_user():
+    """
+    Description: Drops the Redshift cluster ARN user that can read from S3.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     try:
         iam = boto3.client('iam',aws_access_key_id=KEY,
                          aws_secret_access_key=SECRET,
@@ -82,6 +112,14 @@ def remove_user():
 
     
 def main():
+    """
+    Description: Main processing loop.
+    
+    Arguments:
+        None
+    Output:
+        None
+    """
     drop_cluster()
     remove_user()
     update_endpoint()
