@@ -8,6 +8,8 @@
 
 <br>
 
+<br>
+
 ### Project Description and setup
 
 | FileName             | Type             | Description                                      |
@@ -25,7 +27,7 @@
 
 <br>
 
-<p>The project song_dwh.cfg file will need to be set up before scripts can be called. Create the admin AWS user who will spin up the Redhift Cluster, add the key and secret to song_dwh.cfg. The endpoint and ARN user will be populated in song_dwh.cfg automatically when the create_database.py script is called.</p>
+<p>The song_dwh.cfg file will need to be set up before scripts can be called. Create the admin AWS user who will spin up the Redhift Cluster, add the key and secret to song_dwh.cfg. The endpoint and ARN user will be populated in song_dwh.cfg automatically when the create_database.py script is called, or you can add them manually.</p>
 
 <br>
 
@@ -66,6 +68,8 @@ To destroy the Redhsift cluster after use
 
 <br>
 
+<br>
+
 ### Project Outline
 
 <br>
@@ -83,8 +87,165 @@ The project is broken into the following sections:
 
 <br>
 
+<br>
+
 #### 1. IaC Design
 
 <br>
 
-<p></p>
+<p>There are two scripts for creating and deleting the data warehouse</p>
+1. create_warehouse.py
+2. delete_warehouse.py
+
+<br>
+
+<p>These are Iac scripts written in python using the boto3 AWS client. The create script connects to AWS using the admin user, spins up the cluster and createes a role for Redshift to read from S3. Network routing is also set up so that users can connect to Redshift.</p>
+
+<p>The delete script removes the user and warehouse so that resources are not left running.</p>
+
+<p>This allows us to reproduce our production environment, which means testing is more accurate and reproducable.</p>
+
+<br>
+
+<br>
+
+#### 2. Table and Schema Design
+
+<br>
+
+![ Logical Data Model !](/home/workspace/images/logical.png "Logical Data Model")
+
+<br>
+
+<p>The Data model uses a star schema identical to sparkify's existing on premise Postgres data warehouse. One major difference is the use of a distribution key which was defined in the table schema. The number of rows is quite low initially so a simple EVEN distribution key was chosen, ALL could also have been used in this case. This can be redesigned at a later stage once common query patterns are identified.</p>
+
+<p>All of the table generation logic can be found in sql_queries.py and is called from the create_table.py script.</p>
+
+
+<br>
+
+<br>
+
+#### 3. ETL Design
+
+<br>
+
+The ETL process consists of three steps:
+1. Create Destination staging and schema tables.
+2. Load raw json data into staging tables from buckets in S3.
+3. Use INSERT INTO SELECT statements to load the destination dimension and fact tables.
+
+<br>
+
+<p>1. First create table statements are called by the create_tables.py script.</p>
+
+<p>2. Next the COPY commands are called. </p>
+
+log data is located at 's3://udacity-dend/log_data'
+song data is located at 's3://udacity-dend/song_data'
+
+<p>The COPY command will iterate through the directory hierarchy and load each file in parallel where applicable. The log data is also provided with a json path file located at 's3://udacity-dend/log_json_path.json' which helps parse out the correct fields.</p>
+
+```
+staging_events_copy = (""" 
+    COPY staging_events 
+    FROM {}
+    IAM_ROLE '{}'
+    FORMAT AS JSON {}
+    REGION '{}'
+""").format(LOG_DATA, ARN, LOG_JSONPATH, DWH_REGION)
+```
+
+<br>
+
+<p>3. Finally the INSERT INTO SELECT statements load data into destination tables. Duplicates were removed from the data before loading.</p>
+
+
+```
+INSERT INTO fact_songPlay (
+    start_time, 
+    user_id, 
+    level, 
+    song_id, 
+    artist_id, 
+    session_id, 
+    location, 
+    user_agent
+    )
+    SELECT
+        date_add('ms',se.ts,'1970-01-01') as start_time,
+        CAST(se.userId as int) as user_id,
+        se.level,
+        ss.song_id as song_id,
+        ss.artist_id as artist_id,
+        se.sessionId as session_id,
+        se.location,
+        se.useragent as user_agent
+    FROM staging_events se
+    JOIN (
+        SELECT DISTINCT
+            song_id,
+            title,
+            artist_id,
+            artist_name,
+            duration
+        FROM staging_songs
+    ) ss
+    ON se.song = ss.title
+    AND se.artist = ss.artist_name
+    AND se.length = ss.duration
+    WHERE userId <> ' '
+    ;
+```
+*Songplay insert statement*
+
+
+<br>
+
+<br>
+
+#### 4. Sample Queries/Reports
+
+<br>
+
+1. "Top 10 users by number of sessions"
+
+```
+SELECT
+    COUNT(DISTINCT fsp.session_id) as session_count,
+    du.first_name,
+    du.last_name,
+    du.user_id
+FROM fact_songPlay fsp
+JOIN dim_user du
+ON du.user_id = fsp.user_id
+GROUP BY 
+	du.first_name,
+	du.last_name,
+	du.user_id
+ORDER BY session_count DESC
+LIMIT 10
+;
+```
+
+<br>
+
+2. "Top 10 songs by number of listens"
+
+```
+SELECT
+    COUNT(fsp.song_id) as song_count,
+	ds.title,
+	da.name
+FROM fact_songPlay fsp
+JOIN dim_song ds
+ON du.song_id = fsp.song_id
+JOIN dim_artist da
+ON da.artist_id = fsp.artist_id
+GROUP BY 
+	ds.title,
+	da.name
+ORDER BY song_count DESC
+LIMIT 10
+;
+```

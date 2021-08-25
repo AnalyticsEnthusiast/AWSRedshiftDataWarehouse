@@ -72,7 +72,7 @@ songplay_table_create = ("""
         session_id int,
         location varchar(255),
         user_agent varchar(255)
-    );
+    ) DISTSTYLE EVEN;
 """)
 
 user_table_create = ("""
@@ -82,7 +82,7 @@ user_table_create = ("""
         last_name varchar(100), 
         gender varchar(1), 
         level varchar(5)
-    );
+    ) DISTSTYLE EVEN;
 """)
 
 song_table_create = ("""
@@ -92,7 +92,7 @@ song_table_create = ("""
         artist_id varchar(200), 
         year int, 
         duration decimal(9,4)
-    );
+    ) DISTSTYLE EVEN;
 """)
 
 artist_table_create = ("""
@@ -102,7 +102,7 @@ artist_table_create = ("""
         location varchar(255), 
         latitude decimal(8,6),
         longitude decimal(9,6)
-    );
+    ) DISTSTYLE EVEN;
 """)
 
 time_table_create = ("""
@@ -114,7 +114,7 @@ time_table_create = ("""
         month int NOT NULL, 
         year int NOT NULL, 
         weekday int NOT NULL
-    );
+    ) DISTSTYLE EVEN;
 """)
 
 # STAGING TABLES
