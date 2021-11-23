@@ -1,4 +1,6 @@
 song_dwh.cfg
+ipynb*
 id_rsa.pub
 .aws/
 samples/
+__pycache__/
